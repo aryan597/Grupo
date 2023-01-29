@@ -3,7 +3,9 @@ package com.ecommerce.grupo.pojo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class BulkPrices {
+import java.io.Serializable;
+
+public class BulkPrices implements Serializable {
     @SerializedName("10-49")
     @Expose
     private Integer _1049;

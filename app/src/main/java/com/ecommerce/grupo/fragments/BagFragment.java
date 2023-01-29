@@ -1,6 +1,10 @@
 package com.ecommerce.grupo.fragments;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.widget.SearchView;
@@ -18,17 +22,25 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ecommerce.grupo.APIInterface;
 import com.ecommerce.grupo.Adapter.AllProductsAdapter;
+import com.ecommerce.grupo.Adapter.CartAdapter;
+import com.ecommerce.grupo.CheckoutGrupoActivity;
 import com.ecommerce.grupo.Model.AllProducts;
+import com.ecommerce.grupo.Model.CartItems;
 import com.ecommerce.grupo.R;
 import com.ecommerce.grupo.pojo.APIClient;
 import com.ecommerce.grupo.pojo.AllProductsPojo;
+import com.ecommerce.grupo.pojo.GetCartItems;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -37,14 +49,14 @@ import retrofit2.Response;
 
 
 public class BagFragment extends Fragment {
-    RecyclerView allItemsRecyclerView;
-    SearchView searchView;
-    AllProductsAdapter allProductsAdapter;
-    ArrayList<AllProducts> allItemsArrayList;
-    ImageView bagImage,wishListImage;
+    RecyclerView cartRecyclerView;
+    CartAdapter cartAdapter;
+    ArrayList<CartItems> cartItemsArrayList;
     SwipeRefreshLayout swipeRefreshLayout;
+    TextView itemsCount;
     APIInterface apiInterface;
     private ConstraintLayout layoutRemove;
+    ShimmerFrameLayout shimmerFrameLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,29 +80,16 @@ public class BagFragment extends Fragment {
                 }, 2000);
             }
         });
-        bagImage = view.findViewById(R.id.imageView3);
-        bagImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
-                bottomNavigationView.setSelectedItemId(R.id.bag);
-                Fragment fragment = new BagFragment();
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.container, fragment);
-                fragmentTransaction.setCustomAnimations(R.anim.enter_right_to_left, R.anim.exit_right_to_left,
-                        R.anim.enter_left_to_right, R.anim.exit_left_to_right);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
-        });
-        wishListImage = view.findViewById(R.id.wishlist_image);
+        shimmerFrameLayout = view.findViewById(R.id.shimmer);
+        shimmerFrameLayout.startShimmer();
+        itemsCount = view.findViewById(R.id.items_count);
+      /*  wishListImage = view.findViewById(R.id.wishlist_image);
         wishListImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
                 bottomNavigationView.setSelectedItemId(R.id.saved);
-                Fragment fragment = new WishListFragment();
+                Fragment fragment = new OrdersFragment();
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.container, fragment);
@@ -99,85 +98,58 @@ public class BagFragment extends Fragment {
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
-        });
+        });*/
         apiInterface = APIClient.getClient().create(APIInterface.class);
-        Call<AllProductsPojo> call1 = apiInterface.getAllProducts();
-        call1.enqueue(new Callback<AllProductsPojo>() {
-            @Override
-            public void onResponse(Call<AllProductsPojo> call, Response<AllProductsPojo> response) {
-                allItemsArrayList = response.body().data;
-                // below line we are running a loop to add data to our adapter class.
-                for (int i = 0; i < allItemsArrayList.size(); i++) {
-                    allProductsAdapter = new AllProductsAdapter(allItemsArrayList, getContext());
-
-                    // below line is to set layout manager for our recycler view.
-                    StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
-
-                    // setting layout manager for our recycler view.
-                    allItemsRecyclerView.setLayoutManager(manager);
-
-                    // below line is to set adapter to our recycler view.
-                    allItemsRecyclerView.setAdapter(allProductsAdapter);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<AllProductsPojo> call, Throwable t) {
-
-            }
-        });
-        searchView = view.findViewById(R.id.editText2);
-        searchView.setQueryHint("Search by name or id");
-        searchView.setIconified(false);
-        allItemsRecyclerView = view.findViewById(R.id.search_recycler_view);
         layoutRemove = view.findViewById(R.id.layout__remove);
-        /////////////////Search View
-        searchView.clearFocus();
-        searchView.setOnTouchListener(new View.OnTouchListener() {
+        SharedPreferences sp = getContext().getSharedPreferences("MyUserId",MODE_PRIVATE);
+        int id = sp.getInt("id",0);
+        cartRecyclerView =view.findViewById(R.id.cart_recycler_view);
+        Call<GetCartItems> getCartItemsCall = apiInterface.getCartItems(id);
+        getCartItemsCall.enqueue(new Callback<GetCartItems>() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                searchView.setIconified(false);
-                return false;
-            }
-        });
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return false;
+            public void onResponse(Call<GetCartItems> call, Response<GetCartItems> response) {
+                if (response.isSuccessful()){
+                    cartItemsArrayList = response.body().cart.Product;
+                    if (cartItemsArrayList.isEmpty()){
+                        shimmerFrameLayout.stopShimmer();
+                        shimmerFrameLayout.setVisibility(View.GONE);
+                        itemsCount.setVisibility(View.GONE);
+                        layoutRemove.setVisibility(View.VISIBLE);
+                        cartRecyclerView.setVisibility(View.GONE);
+                    }else {
+                        shimmerFrameLayout.stopShimmer();
+                        shimmerFrameLayout.setVisibility(View.GONE);
+                        layoutRemove.setVisibility(View.GONE);
+                        cartRecyclerView.setVisibility(View.VISIBLE);
+                        itemsCount.setVisibility(View.VISIBLE);
+                        itemsCount.setText(cartItemsArrayList.size()+" items");
+                        cartAdapter = new CartAdapter(cartItemsArrayList, getContext(),id);
+                        StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+                        cartRecyclerView.setLayoutManager(manager);
+                        cartRecyclerView.setAdapter(cartAdapter);
+                    }
+                }else{
+                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
-            public boolean onQueryTextChange(String s) {
-                if (s.length() > 0) {
-                    // Search
-                    layoutRemove.setVisibility(View.GONE);
-                    allItemsRecyclerView.setVisibility(View.VISIBLE);
-                    filterList(s);
-                } else {
-                    // Do something when there's no input
-                    hideKeyboard(getActivity());
-                    layoutRemove.setVisibility(View.VISIBLE);
-                    allItemsRecyclerView.setVisibility(View.GONE);
-                }
-                return true;
+            public void onFailure(Call<GetCartItems> call, Throwable t) {
+
             }
         });
-        /////////////////Search View
-        return view;
-    }
-    private void filterList(String s) {
-        ArrayList<AllProducts> filteredList = new ArrayList<>();
-        for (AllProducts allItems:allItemsArrayList){
-            if (allItems.getTitle().toLowerCase().contains(s.toLowerCase()) ){
-                filteredList.add(allItems);
+        /*checkoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               *//* Intent intent = new Intent(getContext(), CheckoutGrupoActivity.class);
+                Bundle args = new Bundle();
+                args.putSerializable("ARRAYLIST",(Serializable)cartItemsArrayList);
+                intent.putExtra("BUNDLE",args);
+                startActivity(intent);*//*
+                Toast.makeText(getContext(), "Multiple orders cannot be placed yet. It will be available soon.", Toast.LENGTH_SHORT).show();
             }
-        }
-        if (filteredList.isEmpty()){
-            allItemsRecyclerView.setVisibility(View.GONE);
-            Toast.makeText(getContext(), "Item Not Available..!", Toast.LENGTH_SHORT).show();
-        }else{
-            allProductsAdapter.setFilteredList(filteredList);
-        }
+        });*/
+        return view;
     }
     public static void hideKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);

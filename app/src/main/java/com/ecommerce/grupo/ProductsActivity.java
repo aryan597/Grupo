@@ -76,7 +76,7 @@ public class ProductsActivity extends AppCompatActivity {
                     Toast.makeText(ProductsActivity.this, "No Data", Toast.LENGTH_SHORT).show();
                 }else{
                     for (int i = 0; i < productModels.size(); i++) {
-                        productAdapter = new ProductAdapter(productModels, ProductsActivity.this);
+                        productAdapter = new ProductAdapter(productModels, ProductsActivity.this,id,id1);
                         StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
                         productsRecyclerView.setLayoutManager(manager);
                         productsRecyclerView.setAdapter(productAdapter);

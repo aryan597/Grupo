@@ -39,6 +39,7 @@ public class UpdateAddressActivity extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.button));
         SharedPreferences sp = getSharedPreferences("MyUserId",MODE_PRIVATE);
         int id = sp.getInt("id",0);
+        int addressId = getIntent().getIntExtra("addressId",0);
         apiInterface = APIClient.getClient().create(APIInterface.class);
         address1 = getIntent().getStringExtra("address1");
         city = getIntent().getStringExtra("city");
@@ -61,15 +62,19 @@ public class UpdateAddressActivity extends AppCompatActivity {
             public void onClick(View view) {
                 dialog.show();
                 PatchAddress patchAddress = new PatchAddress(address1Edit.getText().toString(),cityEdit.getText().toString(),stateEdit.getText().toString(),postalEdit.getText().toString());
-                Call<PatchAddress> call1 = apiInterface.patchAddress(id,patchAddress);
+                Call<PatchAddress> call1 = apiInterface.patchAddress(addressId,patchAddress);
                 call1.enqueue(new Callback<PatchAddress>() {
                     @Override
                     public void onResponse(Call<PatchAddress> call, Response<PatchAddress> response) {
                        if (response.isSuccessful()){
                            dialog.dismiss();
                            Toast.makeText(UpdateAddressActivity.this, "Address Updated Successfully", Toast.LENGTH_SHORT).show();
-                           startActivity(new Intent(UpdateAddressActivity.this,HomeActivity.class));
-                           finish();
+                           /*startActivity(new Intent(UpdateAddressActivity.this,HomeActivity.class));
+                           finish();*/
+                           onBackPressed();
+                       }else{
+                           dialog.dismiss();
+                           Toast.makeText(UpdateAddressActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                        }
                     }
 

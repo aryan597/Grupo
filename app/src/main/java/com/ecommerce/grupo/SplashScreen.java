@@ -24,7 +24,6 @@ public class SplashScreen extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.button));
         mediaPlayer = MediaPlayer.create(SplashScreen.this,R.raw.wink);
-        mediaPlayer.start();
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 if (restorePrefData()) {
@@ -34,9 +33,8 @@ public class SplashScreen extends AppCompatActivity {
                 }else {
                     startActivity(new Intent(getApplicationContext(),SplashActivity.class));
                 }
-                mediaPlayer.stop();
             }
-        }, 6000);
+        }, 2000);
     }
     private boolean restorePrefData() {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("myPrefs",MODE_PRIVATE);

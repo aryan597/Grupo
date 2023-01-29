@@ -21,6 +21,7 @@ public class Product {
     public String maximumRetailPrice;
     @SerializedName("ratings")
     public int ratings;
+
     @SerializedName("img")
     @Expose
     private Img img;

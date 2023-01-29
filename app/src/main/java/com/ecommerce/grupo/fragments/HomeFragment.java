@@ -2,7 +2,6 @@ package com.ecommerce.grupo.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -24,31 +22,29 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ecommerce.grupo.APIInterface;
 import com.ecommerce.grupo.Adapter.AllProductsAdapter;
-import com.ecommerce.grupo.CategoriesActivity;
-import com.ecommerce.grupo.Model.AddressModel;
 import com.ecommerce.grupo.Model.AllProducts;
+import com.ecommerce.grupo.Model.ParentCategoryModel;
 import com.ecommerce.grupo.Model.SliderItem;
-import com.ecommerce.grupo.ProductActivity;
 import com.ecommerce.grupo.R;
+import com.ecommerce.grupo.RequirementsActivity;
+import com.ecommerce.grupo.SearchActivity;
 import com.ecommerce.grupo.ShippingAddressActivity;
 import com.ecommerce.grupo.Adapter.SliderAdapterExample;
+import com.ecommerce.grupo.Adapter.ParentCategoryAdapterHome;
 import com.ecommerce.grupo.pojo.APIClient;
 import com.ecommerce.grupo.pojo.AllProductsPojo;
+import com.ecommerce.grupo.pojo.Category;
+import com.ecommerce.grupo.pojo.MultipleResource;
 import com.ecommerce.grupo.pojo.UserAddress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
@@ -57,6 +53,7 @@ import com.smarteist.autoimageslider.SliderAnimations;
 import com.smarteist.autoimageslider.SliderView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -64,18 +61,18 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
-    LinearLayout shoes,footwear,jewellery,clothing,beauty;
-    ConstraintLayout addAddress;
-    RecyclerView allItemsRecyclerView;
-    SearchView searchView;
-    AllProductsAdapter allProductsAdapter;
-    ArrayList<AllProducts> allItemsArrayList;
-    ArrayList<AddressModel> addressModelArrayList;
-    ConstraintLayout layout_remove;
-    FrameLayout constraintLayout;
+    ConstraintLayout viewAll,addAddress;
+    RecyclerView parentCategoryRecyclerView,productRecyclerView,trendingRecyclerView;
+    TextView searchView;
+    ArrayList<ParentCategoryModel> parentCategoryModelArrayList;
+    ParentCategoryAdapterHome parentCategoryRecyclerViewAdapter;
+    ConstraintLayout layout_remove,requirements;
+    ArrayList<UserAddress> addressModelArrayList;
     APIInterface apiInterface;
-    TextView location,viewAll,suggestion;
-    ImageView bagImage,wishListImage;
+    TextView location,suggestion,viewMore,viewMore1;
+    ArrayList<AllProducts> allItemsArrayList;
+    AllProductsAdapter allProductsAdapter;
+    ImageView bagImage;
     SwipeRefreshLayout swipeRefreshLayout;
     SliderView sliderView;
     SliderAdapterExample adapter;
@@ -95,17 +92,42 @@ public class HomeFragment extends Fragment {
         wholesalerJoin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String urlString = "https://docs.google.com/forms/d/e/1FAIpQLSdEgYGI4PNFK843-EK-83PsnlHYTB6rBBmgX8MC9MSP1i2-qg/viewform";
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.setPackage("com.android.chrome");
-                try {
-                    startActivity(intent);
-                } catch (ActivityNotFoundException ex) {
-                    // Chrome browser presumably not installed so allow user to choose instead
-                    intent.setPackage(null);
-                    startActivity(intent);
-                }
+                String urlString = "https://play.google.com/store/apps/details?id=com.ecommerce.grupomerchant";
+                Intent i = new Intent(android.content.Intent.ACTION_VIEW);
+                i.setData(Uri.parse(urlString));
+                startActivity(i);
+            }
+        });
+        viewMore = view.findViewById(R.id.view_more);
+        viewMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
+                bottomNavigationView.setSelectedItemId(R.id.categories);
+                Fragment fragment = new CategoriesFragment();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.container, fragment);
+                fragmentTransaction.setCustomAnimations(R.anim.enter_right_to_left, R.anim.exit_right_to_left,
+                        R.anim.enter_left_to_right, R.anim.exit_left_to_right);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
+        viewMore1 = view.findViewById(R.id.view_more1);
+        viewMore1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
+                bottomNavigationView.setSelectedItemId(R.id.categories);
+                Fragment fragment = new CategoriesFragment();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.container, fragment);
+                fragmentTransaction.setCustomAnimations(R.anim.enter_right_to_left, R.anim.exit_right_to_left,
+                        R.anim.enter_left_to_right, R.anim.exit_left_to_right);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
         suggestion = view.findViewById(R.id.suggestion);
@@ -123,6 +145,13 @@ public class HomeFragment extends Fragment {
                     intent.setPackage(null);
                     startActivity(intent);
                 }
+            }
+        });
+        requirements = view.findViewById(R.id.include);
+        requirements.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getContext(), RequirementsActivity.class));
             }
         });
         swipeRefreshLayout = view.findViewById(R.id.swipe);
@@ -174,13 +203,13 @@ public class HomeFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-        wishListImage = view.findViewById(R.id.wishlist_image);
+        /*wishListImage = view.findViewById(R.id.wishlist_image);
         wishListImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
                 bottomNavigationView.setSelectedItemId(R.id.saved);
-                Fragment fragment = new WishListFragment();
+                Fragment fragment = new OrdersFragment();
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.container, fragment);
@@ -189,48 +218,7 @@ public class HomeFragment extends Fragment {
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
-        });
-        jewellery = view.findViewById(R.id.linearLayout3);
-        jewellery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), CategoriesActivity.class);
-                intent.putExtra("id",3);
-                intent.putExtra("title","Jewellery");
-                startActivity(intent);
-            }
-        });
-        clothing = view.findViewById(R.id.linearLayout2);
-        clothing.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), CategoriesActivity.class);
-                intent.putExtra("id",4);
-                intent.putExtra("title","Clothing");
-                startActivity(intent);
-            }
-        });
-        footwear = view.findViewById(R.id.linearLayout4);
-        footwear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), CategoriesActivity.class);
-                intent.putExtra("id",1);
-                intent.putExtra("title","Footwear");
-                startActivity(intent);
-
-            }
-        });
-        beauty = view.findViewById(R.id.beauty);
-        beauty.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), CategoriesActivity.class);
-                intent.putExtra("id",5);
-                intent.putExtra("title","Beauty");
-                startActivity(intent);
-            }
-        });
+        });*/
         viewAll = view.findViewById(R.id.view_all_categories);
         viewAll.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -251,52 +239,87 @@ public class HomeFragment extends Fragment {
         location = view.findViewById(R.id.location);
         apiInterface = APIClient.getClient().create(APIInterface.class);
         searchView = view.findViewById(R.id.editText2);
-        searchView.setQueryHint("Search by name or id");
-        searchView.setIconified(false);
-        allItemsRecyclerView = view.findViewById(R.id.allItemsRecyclerView);
         layout_remove = view.findViewById(R.id.container);
+        parentCategoryRecyclerView = view.findViewById(R.id.parent_category_recycler_view);
+        parentCategoryRecyclerView.setNestedScrollingEnabled(false);
+        parentCategoryModelArrayList = new ArrayList<>();
+        productRecyclerView = view.findViewById(R.id.product_recycler_view);
         SharedPreferences sp = getContext().getSharedPreferences("MyUserId",MODE_PRIVATE);
         int id = sp.getInt("id",0);
-        Call<UserAddress> call2 = apiInterface.getUserAddress(id);
-        call2.enqueue(new Callback<UserAddress>() {
+        Call<MultipleResource> call1 = apiInterface.getCategory1();
+        call1.enqueue(new Callback<MultipleResource>() {
             @Override
-            public void onResponse(Call<UserAddress> call, Response<UserAddress> response) {
-                addressModelArrayList = response.body().data;
-                if (addressModelArrayList.isEmpty()){
+            public void onResponse(Call<MultipleResource> call, Response<MultipleResource> response) {
+                parentCategoryModelArrayList = response.body().data;
+                parentCategoryRecyclerView.setVisibility(View.VISIBLE);
+                // below line we are running a loop to add data to our adapter class.
+                ArrayList<ParentCategoryModel> parentCategoryModelArrayList1 = new ArrayList<>();
+                for (int i = 0; i < parentCategoryModelArrayList.size(); i++) {
+                    if (parentCategoryModelArrayList.get(i).getTitle().equals("Home Appliances")||parentCategoryModelArrayList.get(i).getTitle().equals("Baby Care")||parentCategoryModelArrayList.get(i).getTitle().equals("Medicines")||parentCategoryModelArrayList.get(i).getTitle().equals("Furniture")||parentCategoryModelArrayList.get(i).getTitle().equals("Gifts & Toys")){
+                        parentCategoryModelArrayList1.add(parentCategoryModelArrayList.get(i));
+                    }
+                    parentCategoryModelArrayList.removeAll(parentCategoryModelArrayList1);
+                    parentCategoryRecyclerViewAdapter = new ParentCategoryAdapterHome(parentCategoryModelArrayList, getContext());
+                    // below line is to set layout manager for our recycler view.
+                    StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL);
+                    // setting layout manager for our recycler view.
+                    parentCategoryRecyclerView.setLayoutManager(manager);
+                    // below line is to set adapter to our recycler view.
+                    parentCategoryRecyclerView.setAdapter(parentCategoryRecyclerViewAdapter);
+                }
+            }
 
-                }else {
+            @Override
+            public void onFailure(Call<MultipleResource> call, Throwable t) {
+
+            }
+        });
+        Call<ArrayList<UserAddress>> call2 = apiInterface.getUserAddress(id);
+        call2.enqueue(new Callback<ArrayList<UserAddress>>() {
+            @Override
+            public void onResponse(Call<ArrayList<UserAddress>> call, Response<ArrayList<UserAddress>> response) {
+                addressModelArrayList = response.body();
+                if (addressModelArrayList.isEmpty()) {
+
+                } else {
                     for (int i = 0; i < addressModelArrayList.size(); i++) {
-                        if (addressModelArrayList.get(i).getCity().equals("")){
+                        if (addressModelArrayList.get(i).getAddress().equals("")) {
                             location.setText("Add your Delivery Location");
-                        }else {
-                            location.setText(addressModelArrayList.get(i).getCity()+", "+addressModelArrayList.get(i).getState()+", "+addressModelArrayList.get(i).getPostalCode());
+                        } else {
+                            location.setText(addressModelArrayList.get(i).getCity() + ", " + addressModelArrayList.get(i).getState() + ", " + addressModelArrayList.get(i).getPostalCode());
                         }
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<UserAddress> call, Throwable t) {
-                Log.d("response",t.getMessage());
+            public void onFailure(Call<ArrayList<UserAddress>> call, Throwable t) {
+
             }
         });
-        Call<AllProductsPojo> call = apiInterface.getAllProducts();
+        searchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getContext(), SearchActivity.class));
+            }
+        });
+        Call<AllProductsPojo> call = apiInterface.getAllProductsTodaysChoice();
         call.enqueue(new Callback<AllProductsPojo>() {
             @Override
             public void onResponse(Call<AllProductsPojo> call, Response<AllProductsPojo> response) {
                 allItemsArrayList = response.body().data;
                 // below line we are running a loop to add data to our adapter class.
                 for (int i = 0; i < allItemsArrayList.size(); i++) {
-                    allProductsAdapter = new AllProductsAdapter(allItemsArrayList, getContext());
+                    allProductsAdapter = new AllProductsAdapter(allItemsArrayList, getContext(),1);
 
                     // below line is to set layout manager for our recycler view.
-                    StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+                    StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
 
                     // setting layout manager for our recycler view.
-                    allItemsRecyclerView.setLayoutManager(manager);
+                    productRecyclerView.setLayoutManager(manager);
 
                     // below line is to set adapter to our recycler view.
-                    allItemsRecyclerView.setAdapter(allProductsAdapter);
+                    productRecyclerView.setAdapter(allProductsAdapter);
                 }
             }
 
@@ -305,70 +328,39 @@ public class HomeFragment extends Fragment {
 
             }
         });
-        /////////////////Search View
-        searchView.clearFocus();
-        searchView.setOnTouchListener(new View.OnTouchListener() {
+        trendingRecyclerView = view.findViewById(R.id.trending_recyclerview);
+        Call<AllProductsPojo> allProductsPojoCall = apiInterface.getAllProductsTrending();
+        allProductsPojoCall.enqueue(new Callback<AllProductsPojo>() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                searchView.setIconified(false);
-                return false;
-            }
-        });
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return false;
+            public void onResponse(Call<AllProductsPojo> call, Response<AllProductsPojo> response) {
+                allItemsArrayList = response.body().data;
+                // below line we are running a loop to add data to our adapter class.
+                for (int i = 0; i < allItemsArrayList.size(); i++) {
+                    allProductsAdapter = new AllProductsAdapter(allItemsArrayList, getContext(),1);
+
+                    // below line is to set layout manager for our recycler view.
+                    StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+
+                    // setting layout manager for our recycler view.
+                    trendingRecyclerView.setLayoutManager(manager);
+
+                    // below line is to set adapter to our recycler view.
+                    trendingRecyclerView.setAdapter(allProductsAdapter);
+                }
             }
 
             @Override
-            public boolean onQueryTextChange(String s) {
-                if (s.length() > 0) {
-                    // Search
-                    layout_remove.setVisibility(View.GONE);
-                    allItemsRecyclerView.setVisibility(View.VISIBLE);
-                    filterList(s);
-                } else {
-                    // Do something when there's no input
-                    hideKeyboard(getActivity());
-                    layout_remove.setVisibility(View.VISIBLE);
-                    allItemsRecyclerView.setVisibility(View.GONE);
-                }
-                return true;
+            public void onFailure(Call<AllProductsPojo> call, Throwable t) {
+
             }
         });
-        /////////////////Search View
         addAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getContext(), ShippingAddressActivity.class));
             }
         });
-        shoes =view.findViewById(R.id.shoes);
         return view;
-    }
-    private void filterList(String s) {
-        ArrayList<AllProducts> filteredList = new ArrayList<>();
-        for (AllProducts allItems:allItemsArrayList){
-            if (allItems.getTitle().toLowerCase().contains(s.toLowerCase()) ){
-                filteredList.add(allItems);
-            }
-        }
-        if (filteredList.isEmpty()){
-            allItemsRecyclerView.setVisibility(View.GONE);
-            Toast.makeText(getContext(), "Item Not Available..!", Toast.LENGTH_SHORT).show();
-        }else{
-            allProductsAdapter.setFilteredList(filteredList);
-        }
-    }
-    public static void hideKeyboard(Activity activity) {
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = activity.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null) {
-            view = new View(activity);
-        }
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
     public void renewItems(View view) {
         List<SliderItem> sliderItemList = new ArrayList<>();

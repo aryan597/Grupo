@@ -1,6 +1,5 @@
 package com.ecommerce.grupo.pojo;
 
-import com.ecommerce.grupo.Model.AddressModel;
 import com.ecommerce.grupo.Model.AllProducts;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

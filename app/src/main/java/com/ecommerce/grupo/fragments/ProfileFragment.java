@@ -46,6 +46,7 @@ import com.ecommerce.grupo.ShippingAddressActivity;
 import com.ecommerce.grupo.SplashActivity;
 import com.ecommerce.grupo.SuggestionsActivity;
 import com.ecommerce.grupo.TermsActivity;
+import com.ecommerce.grupo.TestActivity;
 import com.ecommerce.grupo.pojo.APIClient;
 import com.ecommerce.grupo.pojo.AllProductsPojo;
 import com.ecommerce.grupo.pojo.Logout;
@@ -56,6 +57,7 @@ import com.google.gson.JsonArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -63,14 +65,14 @@ import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
     ConstraintLayout orders,shippingAddress,aboutUs,help,terms,suggestions,enquiries;
-    Button logout;
+    ConstraintLayout logout;
     APIInterface apiInterface;
     String email,gender;
     SharedPreferences sp;
     TextView name,number;
     ImageView profile;
+    Button editProfile;
     ArrayList<UserModel> userModels;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +109,18 @@ public class ProfileFragment extends Fragment {
             public void onFailure(Call<UserModel> call, Throwable t) {
             }
         });
-        profile.setOnClickListener(new View.OnClickListener() {
+        editProfile = view.findViewById(R.id.button3);
+        editProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), EditProfileActivity.class);
+                intent.putExtra("name",name.getText().toString());
+                intent.putExtra("phone",number.getText().toString());
+                intent.putExtra("email",email);
+                startActivity(intent);
+            }
+        });
+       /* profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), EditProfileActivity.class);
@@ -137,7 +150,7 @@ public class ProfileFragment extends Fragment {
                 intent.putExtra("email",email);
                 startActivity(intent);
             }
-        });
+        });*/
         ProgressDialog dialog = new ProgressDialog(getContext());
         dialog.setMessage("Logging Out...!");
         dialog.setCancelable(false);
@@ -169,7 +182,7 @@ public class ProfileFragment extends Fragment {
                                                     dialogInterface.dismiss();
                                                     dialog.dismiss();
                                                     startActivity(new Intent(getContext(), MainActivity.class));
-                                                    getActivity().finish();
+                                                    requireActivity().finish();
                                                 }
                                             }
 
@@ -186,13 +199,13 @@ public class ProfileFragment extends Fragment {
                         .show();
             }
         });
-        orders = view.findViewById(R.id.my_orders);
+       /* orders = view.findViewById(R.id.my_orders);
         orders.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getContext(), OrdersActivity.class));
             }
-        });
+        });*/
         shippingAddress = view.findViewById(R.id.shipping_address);
         shippingAddress.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,6 +219,13 @@ public class ProfileFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), AboutUsActivity.class);
                 startActivity(intent);
+            }
+        });
+        orders = view.findViewById(R.id.orders);
+        orders.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getContext(), TestActivity.class));
             }
         });
         help = view.findViewById(R.id.help);
@@ -223,14 +243,14 @@ public class ProfileFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        enquiries = view.findViewById(R.id.my_enquiries);
+      /*  enquiries = view.findViewById(R.id.my_enquiries);
         enquiries.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), EnquiriesActivity.class);
                 startActivity(intent);
             }
-        });
+        });*/
         suggestions = view.findViewById(R.id.suggestions);
         suggestions.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class ParentCategoryModel {
     private String title,imageUrl;
     private int id;
+    private int parentCategoryId;
     private ArrayList<CategoryModel> Category;
 
     public ParentCategoryModel(String title, String imageUrl, int id, ArrayList<CategoryModel> Category) {
@@ -12,6 +13,15 @@ public class ParentCategoryModel {
         this.imageUrl = imageUrl;
         this.id = id;
         this.Category = Category;
+    }
+
+
+    public int getParentCategoryId() {
+        return parentCategoryId;
+    }
+
+    public void setParentCategoryId(int parentCategoryId) {
+        this.parentCategoryId = parentCategoryId;
     }
 
     public ArrayList<CategoryModel> getCategoryModels() {

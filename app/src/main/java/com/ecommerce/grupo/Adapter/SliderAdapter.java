@@ -1,6 +1,7 @@
 package com.ecommerce.grupo.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,14 +12,14 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.ecommerce.grupo.Model.SliderItem;
+import com.ecommerce.grupo.OpenImageActivity;
 import com.ecommerce.grupo.R;
 import com.smarteist.autoimageslider.SliderViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SliderAdapter extends
-        SliderViewAdapter<SliderAdapter.SliderAdapterVH>{
+public class SliderAdapter extends SliderViewAdapter<SliderAdapter.SliderAdapterVH>{
 
     private final Context context;
     private List<SliderItem> mSliderItems = new ArrayList<>();
@@ -60,10 +61,12 @@ public class SliderAdapter extends
                 .load(sliderItem.getImageUrl())
                 .fitCenter()
                 .into(viewHolder.imageViewBackground);
-
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*Intent imageIntent = new Intent(context, OpenImageActivity.class);
+                imageIntent.putExtra("imageUrl", sliderItem.getImageUrl());
+                context.startActivity(imageIntent);*/
                 Toast.makeText(context, "This is item in position " + position, Toast.LENGTH_SHORT).show();
             }
         });

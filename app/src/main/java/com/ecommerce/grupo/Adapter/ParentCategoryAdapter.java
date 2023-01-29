@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -36,6 +39,11 @@ public class ParentCategoryAdapter extends RecyclerView.Adapter<ParentCategoryAd
     @Override
     public ParentCategoryAdapter.RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.parent_category_items, parent, false);
+        /*if (type == 0) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.parent_category_items, parent, false);
+        }else{
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.parent_category_items_home, parent, false);
+        }*/
         return new RecyclerViewHolder(view);
     }
 
@@ -56,6 +64,8 @@ public class ParentCategoryAdapter extends RecyclerView.Adapter<ParentCategoryAd
                 mcontext.startActivity(intent);
             }
         });
+        Animation slideIn = AnimationUtils.loadAnimation(mcontext, android.R.anim.slide_in_left);
+        holder.itemView.startAnimation(slideIn);
     }
 
     @Override

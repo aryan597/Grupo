@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/white"
-    app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
-    app:layout_constraintTop_toTopOf="parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-
     <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout2"
@@ -35,8 +29,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="Shipping Address"
+                android:text="Shipping address"
                 android:textColor="@color/white"
                 android:textSize="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -44,60 +37,91 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/address_list"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/address_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/address_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/address_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/add_address_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_corner"
+            android:drawableEnd="@drawable/ic_baseline_add_24"
+            android:drawableTint="@color/white"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="Add address"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/address_recycler_view" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/add_address"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
+
+            <ImageView
+                android:id="@+id/imageView16"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="20dp"
+                android:elevation="4dp"
+                android:src="@drawable/address"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textView33"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:fontFamily="@font/poppins_medium"
+                android:layout_margin="20dp"
                 android:text="Full Address"
                 android:textColor="@color/black"
-                android:textSize="18dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/imageView16" />
 
             <EditText
                 android:id="@+id/address_edit"
                 android:layout_width="match_parent"
                 android:layout_height="90dp"
-                android:textColor="@color/black"
-                android:layout_margin="10dp"
-                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/rounded_corner"
+                android:elevation="4dp"
                 android:gravity="start"
-                android:background="@drawable/otp_background"
-                android:inputType="textPostalAddress"
-                app:layout_constraintTop_toBottomOf="@+id/textView33"
-                tools:layout_editor_absoluteX="10dp" />
+                android:inputType="textMultiLine"
+                android:padding="10dp"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="@+id/textView33"
+                app:layout_constraintTop_toBottomOf="@+id/textView33" />
 
             <TextView
                 android:id="@+id/textView34"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:fontFamily="@font/poppins_medium"
+                android:layout_margin="20dp"
                 android:text="Pincode"
                 android:textColor="@color/black"
-                android:textSize="18dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/address_edit" />
 
@@ -105,67 +129,48 @@
                 android:id="@+id/mobile_number"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:textColor="@color/black"
-                android:layout_margin="10dp"
-                android:padding="10dp"
-                android:background="@drawable/otp_background"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/rounded_corner"
+                android:elevation="4dp"
                 android:inputType="number"
+                android:padding="10dp"
+                android:textColor="@color/black"
                 app:layout_constraintTop_toBottomOf="@+id/textView34"
                 tools:layout_editor_absoluteX="10dp" />
 
             <TextView
-                android:id="@+id/textView35"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="Area"
-                android:textColor="@color/black"
-                android:textSize="18dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/mobile_number" />
-
-            <EditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:textColor="@color/black"
-                android:padding="10dp"
-                android:inputType="textPersonName"
-                android:layout_margin="10dp"
-                android:background="@drawable/otp_background"
-                app:layout_constraintTop_toBottomOf="@+id/textView35" />
-            <TextView
                 android:id="@+id/textView36"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:fontFamily="@font/poppins_medium"
+                android:layout_margin="20dp"
                 android:text="City"
                 android:textColor="@color/black"
-                android:textSize="18dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/email" />
+                app:layout_constraintTop_toBottomOf="@+id/mobile_number" />
 
             <EditText
                 android:id="@+id/gender"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:textColor="@color/black"
-                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/rounded_corner"
+                android:elevation="4dp"
                 android:inputType="textPersonName"
-                android:layout_margin="10dp"
-                android:background="@drawable/otp_background"
+                android:padding="10dp"
+                android:textColor="@color/black"
                 app:layout_constraintTop_toBottomOf="@+id/textView36" />
+
             <TextView
                 android:id="@+id/textView37"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:fontFamily="@font/poppins_medium"
+                android:layout_margin="20dp"
                 android:text="State"
                 android:textColor="@color/black"
-                android:textSize="18dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gender" />
 
@@ -173,24 +178,51 @@
                 android:id="@+id/occupation"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/rounded_corner"
+                android:elevation="4dp"
                 android:inputType="textPersonName"
+                android:padding="10dp"
                 android:textColor="@color/black"
-                android:layout_margin="10dp"
-                android:background="@drawable/otp_background"
                 app:layout_constraintTop_toBottomOf="@+id/textView37" />
+
+            <TextView
+                android:id="@+id/textView38"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:text="Address type"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/occupation" />
+
+            <Spinner
+                android:id="@+id/type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/rounded_corner"
+                android:elevation="4dp"
+                android:inputType="textPersonName"
+                android:padding="15dp"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toBottomOf="@+id/textView38" />
 
             <Button
                 android:id="@+id/save"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
-                android:background="@drawable/button_background"
-                android:fontFamily="@font/poppins_bold"
-                android:text="save"
+                android:text="Save"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:background="@color/button"
                 app:backgroundTint="@color/button"
-                app:layout_constraintTop_toBottomOf="@+id/occupation"
+                app:layout_constraintBottom_toBottomOf="parent"
                 tools:layout_editor_absoluteX="20dp" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>

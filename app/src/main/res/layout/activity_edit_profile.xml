@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/white"
     android:layout_height="match_parent"
     tools:context=".EditProfileActivity">
 
@@ -30,7 +31,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:fontFamily="@font/poppins_medium"
                 android:text="Edit Profile"
                 android:textColor="@color/white"
                 android:textSize="20dp"
@@ -43,151 +43,134 @@
         android:id="@+id/swipe"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
         tools:layout_editor_absoluteX="-53dp">
 
-        <ScrollView
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/add_address"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/add_address"
+            <ImageView
+                android:id="@+id/imageView29"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/circle"
+                android:elevation="4dp"
+                android:padding="10dp"
+                android:src="@drawable/user_profile"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView33"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Name *"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView29" />
+
+            <EditText
+                android:id="@+id/address_edit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/rounded_corner"
+                android:backgroundTint="@color/white"
+                android:elevation="4dp"
+                android:inputType="textPersonName"
+                android:padding="10dp"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toBottomOf="@+id/textView33"
+                tools:layout_editor_absoluteX="10dp" />
+
+            <TextView
+                android:id="@+id/textView34"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Mobile Number"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/address_edit" />
+
+            <EditText
+                android:id="@+id/mobile_number"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/rounded_corner"
+                android:backgroundTint="@color/white"
+                android:elevation="4dp"
+                android:inputType="number"
+                android:padding="10dp"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toBottomOf="@+id/textView34"
+                tools:layout_editor_absoluteX="10dp" />
+
+            <TextView
+                android:id="@+id/textView35"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Email"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/mobile_number" />
+
+            <EditText
+                android:id="@+id/email"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/rounded_corner"
+                android:backgroundTint="@color/white"
+                android:elevation="4dp"
+                android:inputType="textEmailAddress"
+                android:padding="10dp"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toBottomOf="@+id/textView35" />
+
+            <TextView
+                android:id="@+id/textView36"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Male / Female"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/email" />
+
+            <Spinner
+                android:id="@+id/gender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                app:layout_constraintStart_toStartOf="@+id/textView36"
+                app:layout_constraintTop_toBottomOf="@+id/textView36" />
+
+            <Button
+                android:id="@+id/save"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
-
-                <TextView
-                    android:id="@+id/textView33"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Name *"
-                    android:textColor="@color/black"
-                    android:textSize="18dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <EditText
-                    android:id="@+id/address_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/otp_background"
-                    android:inputType="textPersonName"
-                    android:padding="10dp"
-                    android:textColor="@color/black"
-                    app:layout_constraintTop_toBottomOf="@+id/textView33"
-                    tools:layout_editor_absoluteX="10dp" />
-
-                <TextView
-                    android:id="@+id/textView34"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Mobile Number"
-                    android:textColor="@color/black"
-                    android:textSize="18dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/address_edit" />
-
-                <EditText
-                    android:id="@+id/mobile_number"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/otp_background"
-                    android:inputType="number"
-                    android:padding="10dp"
-                    android:textColor="@color/black"
-                    app:layout_constraintTop_toBottomOf="@+id/textView34"
-                    tools:layout_editor_absoluteX="10dp" />
-
-                <TextView
-                    android:id="@+id/textView35"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Email"
-                    android:textColor="@color/black"
-                    android:textSize="18dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/mobile_number" />
-
-                <EditText
-                    android:id="@+id/email"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/otp_background"
-                    android:inputType="textEmailAddress"
-                    android:padding="10dp"
-                    android:textColor="@color/black"
-                    app:layout_constraintTop_toBottomOf="@+id/textView35" />
-
-                <TextView
-                    android:id="@+id/textView36"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Male / Female"
-                    android:textColor="@color/black"
-                    android:textSize="18dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/email" />
-
-                <Spinner
-                    android:id="@+id/gender"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    app:layout_constraintStart_toStartOf="@+id/textView36"
-                    app:layout_constraintTop_toBottomOf="@+id/textView36" />
-
-                <TextView
-                    android:id="@+id/textView37"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Occupation"
-                    android:textColor="@color/black"
-                    android:textSize="18dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/gender" />
-
-                <EditText
-                    android:id="@+id/occupation"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/otp_background"
-                    android:inputType="textPersonName"
-                    android:textColor="@color/black"
-                    app:layout_constraintTop_toBottomOf="@+id/textView37" />
-
-                <Button
-                    android:id="@+id/save"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:background="@drawable/button_background"
-                    android:fontFamily="@font/poppins_bold"
-                    android:text="Save"
-                    android:textColor="@color/white"
-                    android:textAllCaps="false"
-                    app:backgroundTint="@color/button"
-                    app:layout_constraintTop_toBottomOf="@+id/occupation"
-                    tools:layout_editor_absoluteX="20dp" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </ScrollView>
+                android:background="@color/button"
+                android:text="Save"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:layout_editor_absoluteX="20dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

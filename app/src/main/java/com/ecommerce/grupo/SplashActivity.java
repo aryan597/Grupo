@@ -45,6 +45,7 @@ public class SplashActivity extends AppCompatActivity {
             finish();
         }
         setContentView(R.layout.activity_splash);
+
         // ini views
         btnNext = findViewById(R.id.btn_next);
         btnGetStarted = findViewById(R.id.btn_get_started);
@@ -53,7 +54,6 @@ public class SplashActivity extends AppCompatActivity {
         tvSkip = findViewById(R.id.tv_skip);
 
         // fill list screen
-
         final List<ScreenItem> mList = new ArrayList<>();
         mList.add(new ScreenItem("Easy Login","Any user can login with their phone number for free.",R.drawable.img1));
         mList.add(new ScreenItem("Hassle Free","Any user can buy inventory from wholesalers/manufacturers without any problem.",R.drawable.img2));
@@ -64,7 +64,7 @@ public class SplashActivity extends AppCompatActivity {
         introViewPagerAdapter = new IntroViewPagerAdapter(this,mList);
         screenPager.setAdapter(introViewPagerAdapter);
 
-        // setup tablayout with viewpager
+        // setup tab layout with viewpager
 
         tabIndicator.setupWithViewPager(screenPager);
         // next button click Listner
@@ -82,34 +82,21 @@ public class SplashActivity extends AppCompatActivity {
 
                 }
 
-                if (position == mList.size()-1) { // when we rech to the last screen
-
+                if (position == mList.size()-1) {
+                    // when we reach to the last screen
                     // TODO : show the GETSTARTED Button and hide the indicator and the next button
-
                     loaddLastScreen();
-
-
                 }
-
-
-
             }
         });
 
-        // tablayout add change listener
-
-
+        // tab layout add change listener
         tabIndicator.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-
                 if (tab.getPosition() == mList.size()-1) {
-
                     loaddLastScreen();
-
                 }
-
-
             }
 
             @Override

@@ -7,45 +7,74 @@
     android:background="@color/white"
     tools:context=".OtpActivity">
 
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="20dp"
+        android:src="@drawable/back_png"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+        android:id="@+id/constraintLayout10"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/otp_image"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="20dp"
+        android:elevation="4dp"
+        android:background="@drawable/rounded_corner"
+        android:backgroundTint="@color/button"
+        android:padding="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2">
 
         <TextView
-            android:id="@+id/number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginTop="20dp"
-            android:text="Please enter the one time password\nsent on :"
-            android:textColor="@color/black"
+            android:text="Code is sent\nIf you still did not recieve the code, please\nmake sure that you have entered\ncorrect phone number."
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ok"
+        android:layout_marginRight="-10dp"
+        android:elevation="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/constraintLayout10"
+        app:layout_constraintEnd_toStartOf="@+id/constraintLayout10"
+        app:layout_constraintTop_toTopOf="@+id/constraintLayout10" />
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fill the code"
+        android:layout_marginTop="30dp"
+        android:textColor="@color/button"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout10" />
 
         <Button
             android:id="@+id/continue_button"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
             android:background="@drawable/button_background"
+            android:textColor="@color/white"
             android:text="Continue"
             android:textAllCaps="false"
-            app:backgroundTint="#2F80ED"
+            app:backgroundTint="@color/button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView5" />
@@ -61,7 +90,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/number">
+            app:layout_constraintTop_toBottomOf="@+id/tv">
 
             <EditText
                 android:id="@+id/ot1"
@@ -157,8 +186,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:gravity="center"
-            android:text="In Case you have\nnot received\nwait 30 seconds"
-            android:fontFamily="@font/poppins_regular"
+            android:text="In Case you have\nnot received\nin 30 seconds"
             android:textColor="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -176,7 +204,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/continue_button" />
+
+    <TextView
+        android:id="@+id/auto_read_otp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trying to auto read OTP."
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar2" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

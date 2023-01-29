@@ -3,7 +3,6 @@ package com.ecommerce.grupo.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 
-import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -14,7 +13,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -22,13 +20,14 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.ecommerce.grupo.APIInterface;
-import com.ecommerce.grupo.Adapter.AllProductsAdapter;
+import com.ecommerce.grupo.Adapter.CategoryAdapter;
 import com.ecommerce.grupo.Adapter.ParentCategoryAdapter;
-import com.ecommerce.grupo.Model.AllProducts;
+import com.ecommerce.grupo.CategoriesActivity;
+import com.ecommerce.grupo.Model.CategoryModel;
 import com.ecommerce.grupo.Model.ParentCategoryModel;
 import com.ecommerce.grupo.R;
 import com.ecommerce.grupo.pojo.APIClient;
-import com.ecommerce.grupo.pojo.AllProductsPojo;
+import com.ecommerce.grupo.pojo.Category;
 import com.ecommerce.grupo.pojo.MultipleResource;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -44,12 +43,10 @@ public class CategoriesFragment extends Fragment {
     ArrayList<ParentCategoryModel> parentCategoryModelArrayList;
     ParentCategoryAdapter parentCategoryRecyclerViewAdapter;
     APIInterface apiInterface;
-    RecyclerView allItemsRecyclerView;
-    SearchView searchView;
-    AllProductsAdapter allProductsAdapter;
-    ImageView bagImage,wishListImage;
-    ArrayList<AllProducts> allItemsArrayList;
+    ImageView bagImage,amim;
     ConstraintLayout layoutRemove;
+    ArrayList<CategoryModel> categoryArrayList;
+    CategoryAdapter categoryAdapter;
     SwipeRefreshLayout swipeRefreshLayout;
     ShimmerFrameLayout shimmerFrameLayout;
 
@@ -91,136 +88,38 @@ public class CategoriesFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-        wishListImage = view.findViewById(R.id.wishlist_image);
-        wishListImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
-                bottomNavigationView.setSelectedItemId(R.id.saved);
-                Fragment fragment = new WishListFragment();
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.container, fragment);
-                fragmentTransaction.setCustomAnimations(R.anim.enter_right_to_left, R.anim.exit_right_to_left,
-                        R.anim.enter_left_to_right, R.anim.exit_left_to_right);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
-        });
         apiInterface = APIClient.getClient().create(APIInterface.class);
-        Call<AllProductsPojo> call1 = apiInterface.getAllProducts();
-        call1.enqueue(new Callback<AllProductsPojo>() {
-            @Override
-            public void onResponse(Call<AllProductsPojo> call, Response<AllProductsPojo> response) {
-                allItemsArrayList = response.body().data;
-                // below line we are running a loop to add data to our adapter class.
-                for (int i = 0; i < allItemsArrayList.size(); i++) {
-                    allProductsAdapter = new AllProductsAdapter(allItemsArrayList, getContext());
-
-                    // below line is to set layout manager for our recycler view.
-                    StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
-
-                    // setting layout manager for our recycler view.
-                    allItemsRecyclerView.setLayoutManager(manager);
-
-                    // below line is to set adapter to our recycler view.
-                    allItemsRecyclerView.setAdapter(allProductsAdapter);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<AllProductsPojo> call, Throwable t) {
-
-            }
-        });
         parentCategoryModelArrayList = new ArrayList<>();
         parentCategoryRecyclerView = view.findViewById(R.id.parent_category_recycler_view);
         shimmerFrameLayout = view.findViewById(R.id.shimmer);
         shimmerFrameLayout.startShimmer();
         parentCategoryRecyclerView.setNestedScrollingEnabled(false);
-        searchView = view.findViewById(R.id.editText2);
-        searchView.setQueryHint("Search by name or id");
-        searchView.setIconified(false);
-        allItemsRecyclerView = view.findViewById(R.id.search_recyclerView);
         layoutRemove = view.findViewById(R.id.layout_remove);
-        /////////////////Search View
-        searchView.clearFocus();
-        searchView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                searchView.setIconified(false);
-                return false;
-            }
-        });
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return false;
-            }
 
+        Call<Category> call1 = apiInterface.getCategory();
+        call1.enqueue(new Callback<Category>() {
             @Override
-            public boolean onQueryTextChange(String s) {
-                if (s.length() > 0) {
-                    // Search
-                    layoutRemove.setVisibility(View.GONE);
-                    allItemsRecyclerView.setVisibility(View.VISIBLE);
-                    filterList(s);
-                } else {
-                    // Do something when there's no input
-                    hideKeyboard(getActivity());
-                    layoutRemove.setVisibility(View.VISIBLE);
-                    allItemsRecyclerView.setVisibility(View.GONE);
-                }
-                return true;
-            }
-        });
-        /////////////////Search View
-        Call<MultipleResource> call = apiInterface.doGetListResources();
-        // on below line we are calling method to enqueue and calling
-        // all the data from array list.
-        call.enqueue(new Callback<MultipleResource>() {
-            @Override
-            public void onResponse(Call<MultipleResource> call, Response<MultipleResource> response) {
-                parentCategoryModelArrayList = response.body().data;
+            public void onResponse(Call<Category> call, Response<Category> response) {
+                categoryArrayList = response.body().categoryModels;
                 shimmerFrameLayout.stopShimmer();
                 shimmerFrameLayout.setVisibility(View.GONE);
                 parentCategoryRecyclerView.setVisibility(View.VISIBLE);
-                // below line we are running a loop to add data to our adapter class.
-                for (int i = 0; i < parentCategoryModelArrayList.size(); i++) {
-                    parentCategoryRecyclerViewAdapter = new ParentCategoryAdapter(parentCategoryModelArrayList, getContext());
-
-                    // below line is to set layout manager for our recycler view.
+                amim = view.findViewById(R.id.amim);
+                amim.setVisibility(View.VISIBLE);
+                for (int i = 0; i < categoryArrayList.size(); i++) {
+                    categoryAdapter = new CategoryAdapter(categoryArrayList, getContext());
                     StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-
-                    // setting layout manager for our recycler view.
                     parentCategoryRecyclerView.setLayoutManager(manager);
-
-                    // below line is to set adapter to our recycler view.
-                    parentCategoryRecyclerView.setAdapter(parentCategoryRecyclerViewAdapter);
+                    parentCategoryRecyclerView.setAdapter(categoryAdapter);
                 }
             }
 
             @Override
-            public void onFailure(Call<MultipleResource> call, Throwable t) {
+            public void onFailure(Call<Category> call, Throwable t) {
 
             }
         });
-
        return view;
-    }
-    private void filterList(String s) {
-        ArrayList<AllProducts> filteredList = new ArrayList<>();
-        for (AllProducts allItems:allItemsArrayList){
-            if (allItems.getTitle().toLowerCase().contains(s.toLowerCase()) ){
-                filteredList.add(allItems);
-            }
-        }
-        if (filteredList.isEmpty()){
-            allItemsRecyclerView.setVisibility(View.GONE);
-            Toast.makeText(getContext(), "Item Not Available..!", Toast.LENGTH_SHORT).show();
-        }else{
-            allProductsAdapter.setFilteredList(filteredList);
-        }
     }
     public static void hideKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class ProductModel {
     private Img img;
     String title,imageUrl,description;
-    int id,ratings;
+    int id,ratings,price;
 
     public ProductModel(String title, String imageUrl, String description, int id, int ratings) {
         this.title = title;
@@ -15,6 +15,14 @@ public class ProductModel {
         this.description = description;
         this.id = id;
         this.ratings = ratings;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public Img getImg() {

@@ -23,21 +23,33 @@ import java.util.ArrayList;
 public class AllProductsAdapter extends RecyclerView.Adapter<AllProductsAdapter.ViewHolder> {
     ArrayList<AllProducts> allProductsArrayList;
     Context context;
+    int type;
 
-    public AllProductsAdapter(ArrayList<AllProducts> allProductsArrayList, Context context) {
+    public AllProductsAdapter(ArrayList<AllProducts> allProductsArrayList, Context context,int type) {
         this.allProductsArrayList = allProductsArrayList;
         this.context = context;
+        this.type = type;
     }
 
     @NonNull
     @Override
     public AllProductsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return  new AllProductsAdapter.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.all_items_layout, parent, false));
+        if (type == 0) {
+            return new AllProductsAdapter.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.all_items_layout, parent, false));
+        }else {
+            return new AllProductsAdapter.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.all_items_layout_home, parent, false));
+        }
     }
 
     @Override
     public void onBindViewHolder(@NonNull AllProductsAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.productName.setText(allProductsArrayList.get(position).getTitle());
+        if (type == 0){
+            holder.productName.setText(allProductsArrayList.get(position).getTitle());
+        }else {
+                if (allProductsArrayList.get(position).getTitle().length() > 7) {
+                    holder.productName.setText(allProductsArrayList.get(position).getTitle().substring(0, 7) + "...");
+                }
+        }
         Glide.with(context).load(allProductsArrayList.get(position).getImg().get1()).into(holder.productImage);
         holder.cartItemCard.setOnClickListener(new View.OnClickListener() {
             @Override

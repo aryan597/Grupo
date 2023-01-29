@@ -2,12 +2,13 @@ package com.ecommerce.grupo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
@@ -16,22 +17,25 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.ecommerce.grupo.Adapter.CartAdapter;
+import com.ecommerce.grupo.Model.CartItems;
 import com.ecommerce.grupo.fragments.BagFragment;
 import com.ecommerce.grupo.fragments.CategoriesFragment;
 import com.ecommerce.grupo.fragments.HomeFragment;
 import com.ecommerce.grupo.fragments.ProfileFragment;
-import com.ecommerce.grupo.fragments.WishListFragment;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.ecommerce.grupo.fragments.OrdersFragment;
+import com.ecommerce.grupo.pojo.APIClient;
+import com.ecommerce.grupo.pojo.GetCartItems;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -42,30 +46,72 @@ import com.google.android.play.core.install.InstallStateUpdatedListener;
 import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
+import com.tomergoldst.tooltips.ToolTipsManager;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 
-public class HomeActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
+import im.crisp.client.ChatActivity;
+import im.crisp.client.Crisp;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class HomeActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     private static final int RC_APP_UPDATE = 100;
+    AppUpdateManager mAppUpdateManager;
     BottomNavigationView bottomNavigationView;
     String bottom;
+    APIInterface apiInterface;
     FrameLayout container;
+    ImageView chatBot;
+    ArrayList<CartItems> cartItemsArrayList;
     ConstraintLayout noInternet;
-    SwipeRefreshLayout refreshInternet;
-    AppUpdateManager mAppUpdateManager;
+    /*SwipeRefreshLayout refreshInternet;*/
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadLoginData();
         setContentView(R.layout.activity_home);
-        getSupportActionBar().hide();
         Window window = getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.button));
+        chatBot = findViewById(R.id.chatBot);
+        Crisp.configure(getApplicationContext(), "1b8a3c6c-9380-434f-be27-c6a9d2612741");
+        chatBot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent crispIntent = new Intent(HomeActivity.this, ChatActivity.class);
+                startActivity(crispIntent);
+            }
+        });
+        SharedPreferences sp = getSharedPreferences("MyUserId",MODE_PRIVATE);
+        int id = sp.getInt("id",0);
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        Call<GetCartItems> getCartItemsCall = apiInterface.getCartItems(id);
+        getCartItemsCall.enqueue(new Callback<GetCartItems>() {
+            @Override
+            public void onResponse(Call<GetCartItems> call, Response<GetCartItems> response) {
+                if (response.isSuccessful()){
+                    cartItemsArrayList = response.body().cart.Product;
+                    if (cartItemsArrayList.isEmpty()){
+                    }else{
+                        bottomNavigationView.getOrCreateBadge(R.id.bag).setNumber(cartItemsArrayList.size());
+                    }
+                }else{
+                    Toast.makeText(HomeActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GetCartItems> call, Throwable t) {
+
+            }
+        });
+        chatBot.setTooltipText("Chat with us now!");
+        AppRater.app_launched(HomeActivity.this);
         mAppUpdateManager = AppUpdateManagerFactory.create(this);
         mAppUpdateManager.getAppUpdateInfo().addOnSuccessListener(new com.google.android.play.core.tasks.OnSuccessListener<AppUpdateInfo>()
         {
@@ -99,7 +145,7 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
             try {
                 if (bottom.equals("wishList")){
                     bottomNavigationView.setSelectedItemId(R.id.saved);
-                    openFragment(new WishListFragment());
+                    openFragment(new OrdersFragment());
                 }else if (bottom.equals("bag")){
                     bottomNavigationView.setSelectedItemId(R.id.bag);
                     openFragment(new BagFragment());
@@ -115,7 +161,7 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
             container.setVisibility(View.GONE);
             noInternet.setVisibility(View.VISIBLE);
         }
-        refreshInternet = findViewById(R.id.refresh_internet);
+        /*refreshInternet = findViewById(R.id.refresh_internet);
         refreshInternet.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -129,7 +175,7 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
                     noInternet.setVisibility(View.VISIBLE);
                 }
             }
-        });
+        });*/
     }
     @Override
     public void onBackPressed() {
@@ -147,22 +193,38 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        String itemSelected = "";
         switch (item.getItemId()) {
             case R.id.home:
-                openFragment(new HomeFragment());
-                return true;
+                if (!itemSelected.equals("home")) {
+                    itemSelected = "home";
+                    openFragment(new HomeFragment());
+                    return true;
+                }
             case R.id.categories:
-                openFragment(new CategoriesFragment());
-                return true;
+                if (!itemSelected.equals("categories")) {
+                    itemSelected = "categories";
+                    openFragment(new CategoriesFragment());
+                    return true;
+                }
             case R.id.bag:
-                openFragment(new BagFragment());
-                return true;
+                if (!itemSelected.equals("bag")) {
+                    itemSelected = "bag";
+                    openFragment(new BagFragment());
+                    return true;
+                }
             case R.id.saved:
-                openFragment(new WishListFragment());
-                return true;
+                if (!itemSelected.equals("saved")) {
+                    itemSelected = "saved";
+                    startActivity(new Intent(HomeActivity.this,RequirementsActivity.class));
+                    return true;
+                }
             case R.id.profile:
-                openFragment(new ProfileFragment());
-                return true;
+                if (!itemSelected.equals("profile")) {
+                    itemSelected = "profile";
+                    openFragment(new ProfileFragment());
+                    return true;
+                }
             default:
                 break;
         }
@@ -170,8 +232,9 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
     }
     public void openFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(R.anim.enter_left_to_right, 0,
-                R.anim.enter_left_to_right, 0);
+        /*transaction.setCustomAnimations(R.anim.enter_left_to_right, 0,
+                R.anim.enter_left_to_right, 0);*/
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         transaction.replace(R.id.container, fragment);
         transaction.commit();
     }
@@ -272,5 +335,7 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+
 
 }

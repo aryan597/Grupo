@@ -3,7 +3,9 @@ package com.ecommerce.grupo.pojo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Img {
+import java.io.Serializable;
+
+public class Img implements Serializable {
     @SerializedName("1")
     @Expose
     private String _1;

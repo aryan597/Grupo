@@ -4,20 +4,22 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import android.content.DialogInterface;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -26,34 +28,31 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.denzcoskun.imageslider.ImageSlider;
+import com.denzcoskun.imageslider.constants.ScaleTypes;
+import com.denzcoskun.imageslider.interfaces.ItemClickListener;
+import com.denzcoskun.imageslider.models.SlideModel;
+import com.ecommerce.grupo.Adapter.ColorAdapter;
+import com.ecommerce.grupo.Adapter.ProductAdapter;
 import com.ecommerce.grupo.Adapter.SliderAdapter;
-import com.ecommerce.grupo.Adapter.SliderAdapterExample;
+import com.ecommerce.grupo.Model.ProductModel;
 import com.ecommerce.grupo.Model.SliderItem;
 import com.ecommerce.grupo.Model.UserModel;
-import com.ecommerce.grupo.fragments.BagFragment;
-import com.ecommerce.grupo.fragments.WishListFragment;
 import com.ecommerce.grupo.pojo.APIClient;
+import com.ecommerce.grupo.pojo.AddtoBag;
 import com.ecommerce.grupo.pojo.BulkPrices;
 import com.ecommerce.grupo.pojo.Data;
-import com.ecommerce.grupo.pojo.Enquiry;
 import com.ecommerce.grupo.pojo.Img;
 import com.ecommerce.grupo.pojo.MerchantData;
+import com.ecommerce.grupo.pojo.Product;
 import com.ecommerce.grupo.pojo.StoreUrl;
-import com.ecommerce.grupo.pojo.User;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.gson.Gson;
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
 import com.smarteist.autoimageslider.IndicatorView.draw.controller.DrawController;
 import com.smarteist.autoimageslider.SliderAnimations;
 import com.smarteist.autoimageslider.SliderView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -61,21 +60,32 @@ import retrofit2.Response;
 
 public class ProductActivity extends AppCompatActivity {
     ConstraintLayout merchantDetails;
-    ImageView back,shareButton,lock;
+    ImageView back,shareButton;
     TextView title,description,bp1Tv,bp2Tv,bp3Tv,productPrice;
-    TextView tv1049,tv5099,tv100200,tvQuantity,tvPrice;
-    Button enquiryButton;
+    TextView colorTv,gsmTv,wspTv,skuTv,packTv;
+    RecyclerView sizesRecyclerView;
+    TextView tv1049,tv5099,tv100200,tvQuantity,tvPrice,priceTv;
+    Button addToBag,buyNow;
     EditText enquiryEdit;
     APIInterface apiInterface;
     SliderView sliderView;
     SliderAdapter adapter;
+    ProductAdapter productAdapter;
+    RecyclerView moreItemsRecyclerView;
+    int id;
+    ArrayList<String> sizes;
+    ImageSlider imageSlider;
+    ImageView priceInfo;
     String pri;
-    String sa;
-    ImageView bagImage,wishListImage;
+    ArrayList<ProductModel> productModels = new ArrayList<>();
+    String sa,userNameString,phoneNumberString,emailAddressString;
+    ImageView bagImage;
     String imgUrl1,imgUrl2, imgUrl3;
+    String pcId,cId;
     String userName,userPhone,merchantNam,merchantPhon,merchantAddre;
     ArrayList<UserModel> userModels;
-    TextView merchantName,merchantPhone,merchantCompanyName,merchantAddress;
+    int productId;
+    TextView businessName,merchantName,merchantCompanyName,merchantGst,maxRetailTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +95,13 @@ public class ProductActivity extends AppCompatActivity {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.button));
-        merchantDetails = findViewById(R.id.merchant_details);
-        lock = findViewById(R.id.lock);
         SharedPreferences sp1 = getSharedPreferences("MyUserId",MODE_PRIVATE);
         int id1 = sp1.getInt("id",0);
-        SharedPreferences sp2 = getSharedPreferences("MyUserLockStatus",MODE_PRIVATE);
+        imageSlider = findViewById(R.id.image_slider);
+        pcId = getIntent().getStringExtra("pcId");
+        cId = getIntent().getStringExtra("cId");
+        //////lock status
+        /*SharedPreferences sp2 = getSharedPreferences("MyUserLockStatus",MODE_PRIVATE);
         String lockStatus = sp2.getString("lockStatus","");
         if (lockStatus.equals("unlocked")){
             merchantDetails.setVisibility(View.VISIBLE);
@@ -97,17 +109,49 @@ public class ProductActivity extends AppCompatActivity {
         }else {
             merchantDetails.setVisibility(View.GONE);
             lock.setVisibility(View.VISIBLE);
-        }
-        bagImage = findViewById(R.id.imageView3);
-        bagImage.setOnClickListener(new View.OnClickListener() {
+        }*/
+        //////lock status
+        addToBag = findViewById(R.id.add_to_cart);
+        addToBag.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ProductActivity.this,HomeActivity.class);
-                intent.putExtra("bottom","bag");
-                startActivity(intent);
+                    AddtoBag addtoBag = new AddtoBag(id1, productId);
+                    Call<AddtoBag> addtoBagCall = apiInterface.addToBag(addtoBag);
+                    addtoBagCall.enqueue(new Callback<AddtoBag>() {
+                        @Override
+                        public void onResponse(Call<AddtoBag> call, Response<AddtoBag> response) {
+                            if (response.isSuccessful()) {
+                                Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                                vibe.vibrate(200);
+                                Toast.makeText(ProductActivity.this, "Added to Bag successfully.", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(ProductActivity.this, HomeActivity.class));
+                                finish();
+                            } else {
+                                Toast.makeText(ProductActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<AddtoBag> call, Throwable t) {
+                            Toast.makeText(ProductActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                ////custom alert dialog
+                /*AlertDialog.Builder builder = new AlertDialog.Builder(ProductActivity.this);
+                ViewGroup viewGroup = findViewById(android.R.id.content);
+                View dialogView = LayoutInflater.from(view.getContext()).inflate(R.layout.customview, viewGroup, false);
+                builder.setView(dialogView);
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+                dialogView.findViewById(R.id.save_tv).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                    }
+                });*/
             }
         });
-        wishListImage = findViewById(R.id.wishlist_image);
+       /* wishListImage = findViewById(R.id.wishlist_image);
         wishListImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,14 +159,7 @@ public class ProductActivity extends AppCompatActivity {
                intent.putExtra("bottom","wishList");
                startActivity(intent);
             }
-        });
-        merchantName = findViewById(R.id.merchantName);
-        merchantCompanyName = findViewById(R.id.merchantCompanyName);
-        merchantAddress = findViewById(R.id.merchantAddress);
-        merchantPhone = findViewById(R.id.merchantPhone);
-        enquiryEdit = findViewById(R.id.enquiry_edit);
-        enquiryButton = findViewById(R.id.enquiry);
-        productPrice = findViewById(R.id.textView16);
+        });*/
         back = findViewById(R.id.imageView4);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,36 +167,86 @@ public class ProductActivity extends AppCompatActivity {
                 ProductActivity.super.onBackPressed();
             }
         });
-        description = findViewById(R.id.description);
+        description = findViewById(R.id.textView26);
         apiInterface = APIClient.getClient().create(APIInterface.class);
-        int id = getIntent().getIntExtra("id",0);
-        bp1Tv = findViewById(R.id.bp1);
-        bp2Tv = findViewById(R.id.bp2);
-        bp3Tv = findViewById(R.id.bp3);
-        tv1049 =findViewById(R.id.textView17);
-        tv5099 = findViewById(R.id.textView18);
-        tv100200 = findViewById(R.id.textView22);
-        tvQuantity = findViewById(R.id.textView14);
-        tvPrice = findViewById(R.id.textView15);
+        id = getIntent().getIntExtra("id",0);
         title = findViewById(R.id.textView12);
+        /*Call<Product> productCall = apiInterface.doGetProduct(Integer.parseInt(pcId), Integer.parseInt(cId));
+        productCall.enqueue(new Callback<Product>() {
+            @Override
+            public void onResponse(Call<Product> call, Response<Product> response) {
+                productModels = response.body().productModels;
+                if (productModels.isEmpty()) {
+                    moreItemsRecyclerView.setVisibility(View.GONE);
+                } else {
+                    moreItemsRecyclerView.setVisibility(View.VISIBLE);
+                    for (int i = 0; i < productModels.size(); i++) {
+                        productAdapter = new ProductAdapter(productModels, getApplicationContext(),Integer.parseInt(pcId), Integer.parseInt(cId));
+                        StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                        moreItemsRecyclerView.setLayoutManager(manager);
+                        moreItemsRecyclerView.setAdapter(productAdapter);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Product> call, Throwable t) {
+
+            }
+        });*/
         Call<Data> call = apiInterface.getProductDetails(id);
         call.enqueue(new Callback<Data>() {
             @Override
             public void onResponse(Call<Data> call, Response<Data> response) {
                 if (response.isSuccessful()) {
+                    productId = (int) response.body().getId();
                     sa = response.body().getTitle();
                     title.setText(sa);
+                    sizes = new ArrayList<>();
+                    sizes = response.body().getSizes();
+                    sizesRecyclerView = findViewById(R.id.recyclerView2);
+                    ColorAdapter colorAdapter = new ColorAdapter(sizes, getApplicationContext());
+                    StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+                    sizesRecyclerView.setLayoutManager(manager);
+                    sizesRecyclerView.setAdapter(colorAdapter);
+                    colorTv = findViewById(R.id.color);
+                    gsmTv = findViewById(R.id.gsm);
+                    wspTv = findViewById(R.id.wsp);
+                    skuTv = findViewById(R.id.sku);
+                    packTv = findViewById(R.id.pack);
+                    colorTv.setText("Color : "+response.body().getColor());
+                    gsmTv.setText("GSM : "+response.body().getGsm());
+                    wspTv.setText("WSP : "+response.body().getWsp());
+                    skuTv.setText("SKU : "+response.body().getSku());
+                    packTv.setText("Pack : "+sizes.size());
+                    priceTv = findViewById(R.id.price);
+                    double totalPrice = response.body().getPrice()*sizes.size()+0.07*response.body().getPrice();
+                    priceTv.setText("Rs. "+totalPrice);
                     String as = response.body().getDescription();
                     description.setText(as);
                     Img img = response.body().getImg();
                     imgUrl1 = img.get1();
                     imgUrl2 = img.get2();
                     imgUrl3 = img.get3();
-                    BulkPrices bulkPrices = response.body().getBulkPrices();
+                    ArrayList<SlideModel> slideModels = new ArrayList<>();
+                    slideModels.add(new SlideModel(imgUrl1, ScaleTypes.CENTER_INSIDE));
+                    slideModels.add(new SlideModel(imgUrl2, ScaleTypes.CENTER_INSIDE));
+                    slideModels.add(new SlideModel(imgUrl3, ScaleTypes.CENTER_INSIDE));
+                    imageSlider.setImageList(slideModels, ScaleTypes.CENTER_INSIDE);
+                    imageSlider.setItemClickListener(new ItemClickListener() {
+                        @Override
+                        public void onItemSelected(int i) {
+                            Intent imageIntent = new Intent(ProductActivity.this, OpenImageActivity.class);
+                            imageIntent.putExtra("imageUrl", slideModels.get(i).getImageUrl());
+                            startActivity(imageIntent);
+                        }
+                    });
+                    /*BulkPrices bulkPrices = response.body().getBulkPrices();
                     String bp1 = String.valueOf(bulkPrices.get_1049());
                     String bp2 = String.valueOf(bulkPrices.get_5099());
                     String bp3 = String.valueOf(bulkPrices.get_100200());
                     if (!bp1.equals("null")){
+                        maxRetailTv.setText("Retail price : ₹"+(int) response.body().getMaximumRetailPrice());
                         bp1Tv.setText(bp1+"₹");
                         bp2Tv.setText(bp2+"₹");
                         bp3Tv.setText(bp3+"₹");
@@ -177,23 +264,23 @@ public class ProductActivity extends AppCompatActivity {
                                         int intRate = (int) mrp;
                                         int asss = quant*intRate;
                                         pri = String.valueOf(asss);
-                                        productPrice.setText("Product Price: ₹"+pri);
-                                    }else if (quant>=10 & quant<49){
+                                        productPrice.setText("Estimated Price: ₹"+pri);
+                                    }else if (quant>=10 & quant<=49){
                                         int asssss = quant*bulkPrices.get_1049();
                                         pri = String.valueOf(asssss);
-                                        productPrice.setText("Product Price: ₹"+pri);
-                                    }else if (quant>=50 & quant<99){
+                                        productPrice.setText("Estimated Price: ₹"+pri);
+                                    }else if (quant>=50 & quant<=99){
                                         int asssss = quant*bulkPrices.get_5099();
                                         pri = String.valueOf(asssss);
-                                        productPrice.setText("Product Price: ₹"+pri);
-                                    }else if (quant>=100 & quant<200){
+                                        productPrice.setText("Estimated Price: ₹"+pri);
+                                    }else if (quant>=100 & quant<=200){
                                         int asssss = quant*bulkPrices.get_100200();
                                         pri = String.valueOf(asssss);
-                                        productPrice.setText("Product Price: ₹"+pri);
+                                        productPrice.setText("Estimated Price: ₹"+pri);
                                     }else{
                                         int asssss = quant*bulkPrices.get_100200();
                                         pri = String.valueOf(asssss);
-                                        productPrice.setText("Product Price: ₹"+pri);
+                                        productPrice.setText("Estimated Price: ₹"+pri);
                                     }
                                 }else if (charSequence.length()==0){
                                     productPrice.setVisibility(View.GONE);
@@ -205,8 +292,10 @@ public class ProductActivity extends AppCompatActivity {
 
                             }
                         });
-                    }else {
+                    }
+                    else {
                         float mrp = response.body().getMaximumRetailPrice();
+                        maxRetailTv.setText("Retail price : ₹"+(int) response.body().getMaximumRetailPrice());
                         tvQuantity.setText("Maximum Retail Price(MRP) : "+mrp+"₹\nNote : There is no Bulk price for this product.");
                         tvPrice.setVisibility(View.GONE);
                         tv1049.setVisibility(View.GONE);
@@ -240,14 +329,16 @@ public class ProductActivity extends AppCompatActivity {
 
                             }
                         });
-                    }
-                    int merchantId = response.body().getMerchantId();
+                    }*/
+                    /*int merchantId = response.body().getMerchantId();
                     Call<MerchantData> call1 = apiInterface.getMerchantDetails(merchantId);
                     call1.enqueue(new Callback<MerchantData>() {
                         @Override
                         public void onResponse(Call<MerchantData> call, Response<MerchantData> response) {
                             if (response.isSuccessful()){
                                 String companyName = response.body().getCompanyName();
+                                businessName = findViewById(R.id.business_name);
+                                businessName.setText(companyName);
                                 int userId = response.body().getUserId();
                                 Call<UserModel> userModelCall = apiInterface.getUserData(userId);
                                 userModelCall.enqueue(new Callback<UserModel>() {
@@ -260,9 +351,6 @@ public class ProductActivity extends AppCompatActivity {
                                                 merchantNam = userModels.get(i).getName();
                                                 merchantCompanyName.setText("Shop Name: "+companyName);
                                                 merchantPhon = userModels.get(i).getMobileNumber();
-                                                merchantPhone.setVisibility(View.GONE);
-                                                /*merchantPhone.setText("Phone Number: "+userModels.get(i).getMobileNumber());*/
-                                                merchantAddress.setText("Address : "+userModels.get(i).address1+userModels.get(i).city+userModels.get(i).getState()+" - "+userModels.get(i).getPostalCode());
                                                 merchantAddre = userModels.get(i).address1+userModels.get(i).city+userModels.get(i).getState()+" - "+userModels.get(i).getPostalCode();
                                                 getUserDetails(id1);
                                             }
@@ -281,7 +369,7 @@ public class ProductActivity extends AppCompatActivity {
                         public void onFailure(Call<MerchantData> call, Throwable t) {
 
                         }
-                    });
+                    });*/
                     //////////////////Adapter
                     sliderView = findViewById(R.id.imageProductSlider);
                     adapter = new SliderAdapter(ProductActivity.this);
@@ -316,45 +404,26 @@ public class ProductActivity extends AppCompatActivity {
         });
         SharedPreferences sp = getSharedPreferences("MyUserId",MODE_PRIVATE);
         int userId = sp.getInt("id",0);
-        shareButton = findViewById(R.id.share_button);
-        enquiryButton.setOnClickListener(new View.OnClickListener() {
+        Call<UserModel> userDataCall = apiInterface.getUserData(userId);
+        userDataCall.enqueue(new Callback<UserModel>() {
             @Override
-            public void onClick(View view) {
-                if (enquiryEdit.getText().toString().equals("")){
-                    Toast.makeText(ProductActivity.this, "Please enter a valid Quantity!", Toast.LENGTH_SHORT).show();
-                    enquiryEdit.requestFocus();
-                }else{
-                    String quantity = enquiryEdit.getText().toString();
-                    Enquiry enquiry = new Enquiry(userName,userPhone,sa,id,pri,merchantNam,merchantPhon,merchantAddre,Integer.parseInt(quantity),userId);
-                    Call<Enquiry> call = apiInterface.sendEnquiry(enquiry);
-                    call.enqueue(new Callback<Enquiry>() {
-                        @Override
-                        public void onResponse(Call<Enquiry> call, Response<Enquiry> response) {
-                            if (response.isSuccessful()){
-                                AlertDialog.Builder builder = new AlertDialog.Builder(ProductActivity.this);
-                                builder.setMessage(response.body().getData())
-                                        .setCancelable(false)
-                                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, int i) {
-                                                dialogInterface.dismiss();
-                                            }
-                                        })
-                                        .setIcon(R.drawable.ic_baseline_auto_awesome_24)
-                                        .show();
-                            }else {
-                                Toast.makeText(ProductActivity.this, response.message(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Enquiry> call, Throwable t) {
-                            Toast.makeText(ProductActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            public void onResponse(Call<UserModel> call, Response<UserModel> response) {
+                if (response.isSuccessful()){
+                    userModels = response.body().data;
+                    for (int i = 0; i < userModels.size(); i++) {
+                      userNameString = userModels.get(i).getName();
+                      phoneNumberString = userModels.get(i).getMobileNumber();
+                      emailAddressString = userModels.get(i).getEmail();
+                    }
+                }else {
                 }
             }
+
+            @Override
+            public void onFailure(Call<UserModel> call, Throwable t) {
+            }
         });
+        shareButton = findViewById(R.id.share_button);
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -371,23 +440,58 @@ public class ProductActivity extends AppCompatActivity {
                                     "Grupo connects manufacturers and wholesalers. It's a platform where any individual/business can buy inventory directly from wholesalers hassle free.\n" +
                                     "\n" +
                                     "Download the app here for free \uD83D\uDE80\n\n"+response.body().getUrl();
-                            /*Uri uri = Uri.parse(imgUrl1);
-                            intent.putExtra(Intent.EXTRA_STREAM,uri);
-                            intent.setType("image/jpeg");
-                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);*/
+                           /* Uri uri = Uri.parse(imgUrl1);
+                            intent.putExtra(Intent.EXTRA_STREAM,uri);*/
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             intent.putExtra(Intent.EXTRA_SUBJECT,shareBody);
                             intent.putExtra(Intent.EXTRA_TEXT,shareSub);
                             startActivity(Intent.createChooser(intent,"Share product using"));
+                        }else {
+                            Toast.makeText(ProductActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<StoreUrl> call, Throwable t) {
-
+                        Toast.makeText(ProductActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         });
+        /*buyNow =findViewById(R.id.buy_now);
+        buyNow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               if (enquiryEdit.getText().toString().equals("")){
+                   enquiryEdit.setError("Please enter the quantity you want.");
+                   enquiryEdit.requestFocus();
+               }else if (Integer.parseInt(enquiryEdit.getText().toString())<10){
+                   Toast.makeText(ProductActivity.this, "You have to order more than (or) equal to 10 products.", Toast.LENGTH_SHORT).show();
+               }else{
+                   if (Integer.parseInt(productPrice.getText().toString().replace("Estimated Price: ₹",""))<10000){
+                       //cod available
+                       Intent intent = new Intent(ProductActivity.this,CheckoutGrupoActivity.class);
+                       intent.putExtra("isCod",true);
+                       intent.putExtra("name",userNameString);
+                       intent.putExtra("quantity",enquiryEdit.getText().toString());
+                       intent.putExtra("phoneNumber",phoneNumberString);
+                       intent.putExtra("email",emailAddressString);
+                       intent.putExtra("productId",id);
+                       intent.putExtra("productPrice",Integer.parseInt(productPrice.getText().toString().replace("Estimated Price: ₹","")));
+                       startActivity(intent);
+                   }else{
+                       //cod not available
+                       Intent intent = new Intent(ProductActivity.this,CheckoutGrupoActivity.class);
+                       intent.putExtra("isCod",false);
+                       intent.putExtra("name",userNameString);
+                       intent.putExtra("quantity",enquiryEdit.getText().toString());
+                       intent.putExtra("productId",id);
+                       intent.putExtra("productPrice",Integer.parseInt(productPrice.getText().toString().replace("Estimated Price: ₹","")));
+                       startActivity(intent);
+                   }
+               }
+            }
+        });*/
     }
 
     private void getUserDetails(int id1) {

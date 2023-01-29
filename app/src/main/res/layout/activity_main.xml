@@ -4,103 +4,89 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#F7FFFFFF"
     tools:context=".MainActivity">
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="64dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/login_btn"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/phone"
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/imageView22"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:lottie_rawRes="@raw/hello" />
 
         <TextView
             android:id="@+id/tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="30dp"
-            android:fontFamily="@font/poppins_regular"
-            android:text="@string/enter_number"
+            android:text="Your Phone Number"
             android:textColor="@color/black"
             android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+            app:layout_constraintTop_toBottomOf="@+id/imageView22" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/edit_text"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="@drawable/rounded_corner"
+            android:elevation="4dp"
+            android:padding="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv"
             tools:layout_editor_absoluteX="20dp">
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="+91"
-                android:textColor="#000000"
-                android:textSize="20dp"
+            <ImageView
+                android:id="@+id/imageView30"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/india_flag"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-
-            <View
-                android:id="@+id/view"
-                android:layout_width="2dp"
-                android:layout_height="40dp"
-                android:layout_marginLeft="10dp"
-                android:background="#000000"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
                 android:id="@+id/editText"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_margin="5dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
                 android:hint="Phone Number"
                 android:inputType="number"
+                android:padding="5dp"
                 android:textColor="@color/black"
                 android:textColorHint="#919191"
                 android:textSize="18dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/view"
+                app:layout_constraintStart_toEndOf="@+id/imageView30"
                 app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <Button
-            android:id="@+id/login_btn"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_margin="20dp"
-            android:background="@drawable/button_background"
-            android:text="Login"
-            android:textAllCaps="false"
-            android:textSize="20dp"
-            app:backgroundTint="#2F80ED"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <Button
+        android:id="@+id/login_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
+        android:text="Next"
+        android:textAllCaps="false"
+        app:backgroundTint="@color/button"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
